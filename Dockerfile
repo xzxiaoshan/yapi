@@ -20,5 +20,4 @@ RUN set -x && \
     cp /api/vendors/config_example.json /api/config.json
 
 EXPOSE 3000
-CMD node server/app.js
-#ENTRYPOINT ["node"]
+ENTRYPOINT ["node","server/app.js"]
