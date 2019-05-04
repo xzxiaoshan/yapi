@@ -1,26 +1,24 @@
-FROM alpine/git:latest
+FROM node:9.2-alpine as builder
+
+WORKDIR /home/
+
+RUN set -x && \
+    apk add --no-cache git python make openssl tar gcc && \
+    git clone https://github.com/YMFE/yapi.git && \
+	mkdir /api && mv /home/yapi /api/vendors && cd /api/vendors && \
+    npm install --production --registry https://registry.npm.taobao.org
+
+FROM node:9.2-alpine
 MAINTAINER xzxiaoshan <365384722@qq.com>
 
-WORKDIR /gitcode/
+ENV TZ="Asia/Shanghai"
+WORKDIR /api/vendors
+
+COPY --from=builder /api/vendors /api/vendors
 
 RUN set -x && \
-    git clone https://github.com/YMFE/yapi.git
+    cp /api/vendors/config_example.json /api/config.json
 
-FROM node:alpine
-
-WORKDIR /yapi/vendors/
-
-COPY --from=0 /gitcode/yapi/ .
-
-RUN set -x && \
-    npm install --production --registry https://registry.npm.taobao.org && \
-    npm install -S pm2 && \
-    echo '#!/bin/sh' > start.sh && \
-    echo 'if [ ! -f "/install-server-ok" ];then' >> start.sh && \
-    echo 'npm run install-server' >> start.sh && \
-    echo 'echo ok > /install-server-ok' >> start.sh && \
-    echo 'fi' >> start.sh && \
-    echo 'node server/app.js' >> start.sh && \
-	chmod +x start.sh
-
-CMD start.sh
+EXPOSE 3000
+CMD node server/app.js
+#ENTRYPOINT ["node"]
