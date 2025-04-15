@@ -1,4 +1,4 @@
-FROM node:9.2-alpine as builder
+FROM node:23.11-alpine as builder
 
 WORKDIR /home/
 
@@ -8,7 +8,7 @@ RUN set -x && \
 	mkdir /api && mv /home/yapi /api/vendors && cd /api/vendors && \
     npm install --production --registry https://registry.npm.taobao.org
 
-FROM node:9.2-alpine
+FROM node:23.11-alpine
 MAINTAINER xzxiaoshan <365384722@qq.com>
 
 ENV TZ="Asia/Shanghai"
